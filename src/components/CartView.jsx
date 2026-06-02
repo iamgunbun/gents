@@ -58,7 +58,7 @@ export default function CartView({ cart, setCart, globalBtnClass, continueShoppi
       }]);
 
       // 3. Secretly Post to FormSubmit via AJAX (Prevents opening a new tab)
-      await fetch('https://formsubmit.co/ajax/ammonsgunner@gmail.com', {
+      await fetch('https://formsubmit.co/ajax/thegentlemenartistsarmoury@gmail.com', {
         method: 'POST',
         body: formData,
         headers: {
