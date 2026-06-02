@@ -4,6 +4,24 @@ export default function ContactView({ globalBtnClass }) {
   const formRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [openFaq, setOpenFaq] = useState(null);
+
+  const faqs = [
+    { q: "Can I get a personal firearm engraved?", a: "It depends on the Firearm." },
+    { q: "How much does it cost to get a gun engraved?", a: "Basic gun engraving starts around $300, depending on what you want done." },
+    { q: "How long does a custom project take?", a: "A four week turnaround time is standard, but we will contact you as soon as its ready. If you are ordering one of our products on our website, the turnaround time could be less." },
+    { q: "Are your firearms fully functional or display pieces?", a: "They are fully functional." },
+    { q: "Are your firearms new or refurbished?", a: "They are all new firearms." },
+    { q: "Are your engravings done by hand or laser engraved?", a: "Laser engraved." },
+    { q: "Can I provide my own artwork or design ideas?", a: "If you have an a design, we can work with you to make your idea come to life." },
+    { q: "Can firearms be shipped directly to my home?", a: "No, all firearms must be sent to a local FFL holder to do transfer paperwork." },
+    { q: "Do I need to complete a background check?", a: "Yes, you must complete a background check." },
+    { q: "Can you ship internationally?", a: "No, we do not ship internationally." }
+  ];
+
+  const toggleFaq = (index) => {
+    setOpenFaq(openFaq === index ? null : index);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,7 +50,7 @@ export default function ContactView({ globalBtnClass }) {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-12 space-y-12 bg-white animate-fade-up min-h-screen relative">
+    <div className="max-w-4xl mx-auto p-6 md:p-12 space-y-12 bg-white animate-fade-up min-h-screen relative">
       
       {showSuccessModal && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
@@ -55,7 +73,6 @@ export default function ContactView({ globalBtnClass }) {
       )}
 
       <div className="text-center space-y-6">
-        {/* Added Sticker Here */}
         <div className="flex justify-center mb-6">
           <img src="/Sticker.png" alt="Company Sticker" className="w-28 h-28 object-cover rounded-full shadow-[0_0_15px_rgba(238,191,28,0.3)] border-2 border-[#eebf1c] hover:rotate-6 transition-transform duration-500" />
         </div>
@@ -67,7 +84,7 @@ export default function ContactView({ globalBtnClass }) {
         </div>
       </div>
 
-      <form ref={formRef} onSubmit={handleSubmit} className="bg-gray-50 p-8 rounded-2xl border border-[#eebf1c]/30 shadow-lg space-y-6 relative z-10">
+      <form ref={formRef} onSubmit={handleSubmit} className="bg-gray-50 p-6 md:p-8 rounded-2xl border border-[#eebf1c]/30 shadow-lg space-y-6 relative z-10">
                  
         <input type="hidden" name="_subject" value="New Contact Form Request from Website!" />
         <input type="hidden" name="_captcha" value="false" />
@@ -99,15 +116,43 @@ export default function ContactView({ globalBtnClass }) {
         </button>
       </form>
 
-      {/* Added QR Code Here */}
       <div className="flex justify-center mt-12 mb-8 animate-fade-up" style={{ animationDelay: '200ms' }}>
          <img src="/thegentlemenartistsarmoury_qr.png" alt="Scan to Connect" className="w-40 h-40 md:w-48 md:h-48 object-contain bg-white p-2 rounded-xl border border-gray-200 shadow-md hover:scale-105 transition-transform" />
       </div>
       
-      <div className="py-8 border-t border-[#eebf1c]/30 text-center">
+      <div className="py-8 border-y border-[#eebf1c]/30 text-center">
         <h3 className="font-bold uppercase text-[#04351e] mb-2 tracking-widest">Hours of Operation</h3>
         <p className="text-[#04351e]">Monday - Friday: 9:00am - 5:00pm</p>
       </div>
+
+      {/* --- FAQ SECTION --- */}
+      <div className="pt-8">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#04351e] uppercase tracking-wide">Frequently Asked Questions</h2>
+          <p className="text-gray-500 mt-2 font-sans">Everything you need to know about our custom process.</p>
+        </div>
+
+        <div className="space-y-4 max-w-3xl mx-auto">
+          {faqs.map((faq, index) => (
+            <div key={index} className="border border-[#eebf1c]/30 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-all duration-300">
+              <button 
+                type="button"
+                className="w-full text-left px-6 py-4 font-bold text-[#04351e] flex justify-between items-center focus:outline-none cursor-pointer hover:bg-gray-50"
+                onClick={() => toggleFaq(index)}
+              >
+                <span className="font-serif text-lg pr-4">{faq.q}</span>
+                <svg className={`w-6 h-6 flex-shrink-0 text-[#eebf1c] transition-transform duration-300 ${openFaq === index ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div className={`px-6 overflow-hidden transition-all duration-300 ease-in-out ${openFaq === index ? 'max-h-40 pb-5 opacity-100' : 'max-h-0 opacity-0'}`}>
+                <p className="text-gray-600 font-sans leading-relaxed border-t border-gray-100 pt-3">{faq.a}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
     </div>
   );
 }
