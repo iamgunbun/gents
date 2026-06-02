@@ -30,7 +30,7 @@ export default function ContactView({ globalBtnClass }) {
     try {
       const formData = new FormData(formRef.current);
       
-      await fetch('https://formsubmit.co/ajax/ammonsgunner@gmail.com', {
+      await fetch('https://formsubmit.co/ajax/thegentlemenartistsarmoury@gmail.com', {
         method: 'POST',
         body: formData,
         headers: {
