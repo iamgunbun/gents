@@ -279,7 +279,6 @@ function CmsSection({ section, setPage, isH1 }) {
     
     const fontClass = font === 'serif' ? 'font-serif' : (font === 'mono' ? 'font-mono' : 'font-sans font-bold');
     
-    // Made base button classes smaller on mobile to fit grids
     const baseClass = `px-3 py-2 md:px-8 md:py-3 text-[8px] md:text-[11px] uppercase tracking-widest transition-all duration-300 transform cursor-pointer flex items-center justify-center text-center w-full md:w-auto ${radius} ${hoverAnimClass} ${fontClass}`;
     
     let appliedStyle = style;
@@ -297,11 +296,11 @@ function CmsSection({ section, setPage, isH1 }) {
     if (appliedStyle === 'outline') {
       if (color === 'brand-gold' || color === 'gold') return `${baseClass} border-2 border-[#eebf1c] text-[#eebf1c] hover:bg-[#eebf1c] hover:text-[#04351e]`;
       if (color === 'brand-green' || color === 'emerald') return `${baseClass} border-2 border-[#04351e] text-[#04351e] hover:bg-[#04351e] hover:text-white`;
-      if (color === 'white') return `${baseClass} border-2 border-white text-white hover:bg-white hover:text-black`;
+      if (color === 'white') return `${baseClass} border-2 border-white text-gray-700 hover:bg-white hover:text-black`;
       if (color === 'red') return `${baseClass} border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white`;
       if (color === 'blue') return `${baseClass} border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white`;
       if (color === 'purple') return `${baseClass} border-2 border-purple-700 text-purple-700 hover:bg-purple-700 hover:text-white`;
-      if (color === 'silver') return `${baseClass} border-2 border-gray-400 text-gray-500 hover:bg-gray-400 hover:text-black`;
+      if (color === 'silver') return `${baseClass} border-2 border-gray-400 text-gray-600 hover:bg-gray-400 hover:text-black`;
       if (color === 'black') return `${baseClass} border-2 border-black text-black hover:bg-black hover:text-white`;
     }
     
@@ -413,7 +412,6 @@ function CmsSection({ section, setPage, isH1 }) {
       const hasInlineImage = !!section.inline_image_url;
       const forceCenter = !hasInlineImage || section.inline_image_position === 'center';
 
-      // Replaced md:flex-row with strict flex-row to prevent mobile stacking
       return (
         <div className={containerClass} style={{ ...borderStyles, ...containerStyle }}>
           {renderBackgroundLayer()}
@@ -457,7 +455,6 @@ function CmsSection({ section, setPage, isH1 }) {
     }
 
     case 'text_with_image':
-      // Enforce strict 2-column grid layout everywhere
       return (
         <div className={containerClass} style={{ ...borderStyles, ...containerStyle }}>
           {renderBackgroundLayer()}
@@ -487,7 +484,6 @@ function CmsSection({ section, setPage, isH1 }) {
       );
 
     case 'feature_grid':
-      // Enforce strict 3-column grid everywhere
       return (
         <div className={containerClass} style={{ ...borderStyles, ...containerStyle }}>
           {renderBackgroundLayer()}
@@ -601,5 +597,4 @@ function CmsSection({ section, setPage, isH1 }) {
       );
     }
   }
-}
 }
