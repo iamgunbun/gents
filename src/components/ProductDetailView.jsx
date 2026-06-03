@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-// Reusing the same thumbnail card from HomeView for the related items section, now with Gallery hover effects
+// Reusing the same thumbnail card from HomeView for the related items section
 function HomeThumbnailCard({ item, onSelect, globalBtnClass }) {
   const hasOptions = item.dropdown_label || item.price_max;
 
@@ -9,13 +9,13 @@ function HomeThumbnailCard({ item, onSelect, globalBtnClass }) {
       onClick={() => onSelect(item)}
       className="w-[280px] md:w-[320px] flex-shrink-0 bg-gray-50 rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col cursor-pointer overflow-hidden group whitespace-normal"
     >
-      {/* THE FIX: Added the group-hover overlay and magnifying glass icon to match the Gallery */}
+      {/* Updated to perfectly match the Gallery gold hover effect */}
       <div className="bg-white h-48 p-4 flex items-center justify-center border-b border-gray-100 overflow-hidden relative">
         {item.image_url ? (
           <>
             <img src={item.image_url} alt={`Preview of ${item.title}`} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10 pointer-events-none">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-10 h-10 text-white opacity-80">
+            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10 pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-10 h-10 text-[#eebf1c] drop-shadow-lg">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
               </svg>
             </div>
@@ -159,38 +159,39 @@ export default function ProductDetailView({ product, inventory, onSelectProduct,
         {/* LEFT: Image Gallery */}
         <div className="space-y-6 lg:sticky lg:top-24">
           
-          {/* Main Image Viewport (Click to enlarge) */}
-          <div 
-            className="relative w-full aspect-square bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm flex items-center cursor-zoom-in group"
-            onClick={() => setIsLightboxOpen(true)}
-          >
+          {/* Main Image Viewport */}
+          <div className="relative w-full aspect-square bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm flex items-center">
             
-            {/* Magnifying Glass Hover Indicator */}
-            <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none flex items-center justify-center">
-              <div className="bg-black/40 text-white p-3 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
+            {/* The Image Track and Hover Area (Separated from buttons to prevent false hovers) */}
+            <div 
+              className="absolute inset-0 cursor-pointer group z-0"
+              onClick={() => setIsLightboxOpen(true)}
+            >
+              {/* Sliding Track */}
+              <div 
+                className="flex w-full h-full transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+              >
+                {allImages.map((img, idx) => (
+                  <div key={idx} className="w-full h-full flex-shrink-0 flex items-center justify-center p-4 md:p-8">
+                    <img 
+                      src={img} 
+                      alt={`${product.title} - View ${idx + 1}`} 
+                      className="w-full h-full object-contain drop-shadow-md"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Gallery-Style Magnifying Glass Hover Indicator */}
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 flex items-center justify-center pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-12 h-12 text-[#eebf1c] drop-shadow-lg">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
                 </svg>
               </div>
             </div>
-
-            {/* Sliding Track */}
-            <div 
-              className="flex w-full h-full transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] z-0"
-              style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
-            >
-              {allImages.map((img, idx) => (
-                <div key={idx} className="w-full h-full flex-shrink-0 flex items-center justify-center p-4 md:p-8">
-                  <img 
-                    src={img} 
-                    alt={`${product.title} - View ${idx + 1}`} 
-                    className="w-full h-full object-contain drop-shadow-md"
-                  />
-                </div>
-              ))}
-            </div>
             
-            {/* Embedded Navigation Arrows */}
+            {/* Embedded Navigation Arrows (Sitting ON TOP of the hover area) */}
             {allImages.length > 1 && (
               <>
                 <button onClick={(e) => { e.stopPropagation(); prevImage(); }} className="absolute left-4 bg-black/50 hover:bg-[#eebf1c] text-white hover:text-[#04351e] w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md backdrop-blur-sm z-30 cursor-pointer">
@@ -202,8 +203,9 @@ export default function ProductDetailView({ product, inventory, onSelectProduct,
               </>
             )}
             
+            {/* Limited Run Badge */}
             {product.is_limited_edition && (
-              <span className="absolute top-4 right-4 bg-red-600 text-white text-[10px] font-black tracking-widest uppercase px-3 py-1.5 rounded shadow-lg animate-pulse z-30">Limited Run</span>
+              <span className="absolute top-4 right-4 bg-red-600 text-white text-[10px] font-black tracking-widest uppercase px-3 py-1.5 rounded shadow-lg animate-pulse z-30 pointer-events-none">Limited Run</span>
             )}
           </div>
 
