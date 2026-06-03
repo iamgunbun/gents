@@ -33,11 +33,18 @@ function HomeThumbnailCard({ item, onSelect, globalBtnClass }) {
     >
       <div className="bg-white h-48 p-4 flex items-center justify-center border-b border-gray-100 overflow-hidden relative">
         {item.image_url ? (
-          <img src={item.image_url} alt={`Preview of ${item.title}`} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
+          <>
+            <img src={item.image_url} alt={`Preview of ${item.title}`} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10 pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-10 h-10 text-[#eebf1c] drop-shadow-lg">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+              </svg>
+            </div>
+          </>
         ) : (
           <div className="text-gray-300 font-mono text-xs">No Image</div>
         )}
-        <span className="absolute top-2 right-2 bg-[#eebf1c] text-[#04351e] text-[9px] font-mono px-2 py-1 rounded shadow font-black tracking-widest uppercase">NEW</span>
+        <span className="absolute top-2 right-2 bg-[#eebf1c] text-[#04351e] text-[9px] font-mono px-2 py-1 rounded shadow font-black tracking-widest uppercase z-20">NEW</span>
       </div>
       
       <div className="p-5 flex flex-col flex-grow text-left">
@@ -183,7 +190,6 @@ function CmsSection({ section, setPage, isH1 }) {
   const useOverlay = section.bg_opacity_enabled !== false;
   const noBackground = section.bg_none === true;
 
-  // EXTENDED COLOR HEX MAPPING FOR CSS EFFECTS
   const colorHexMap = {
     'brand-gold': '#eebf1c',
     'brand-green': '#04351e',
@@ -268,12 +274,13 @@ function CmsSection({ section, setPage, isH1 }) {
     const font = btnNum === 1 ? (section.btn_font || 'sans') : (btnNum === 2 ? (section.btn2_font || 'sans') : (section.btn3_font || 'sans'));
     
     let hoverAnimClass = 'hover:brightness-110';
-    if (hoverType === 'lift') hoverAnimClass = 'hover:-translate-y-1.5 hover:shadow-2xl hover:scale-[1.03] active:scale-95';
-    if (hoverType === 'glow') hoverAnimClass = 'hover:shadow-[0_0_20px_currentColor] hover:scale-[1.02] active:scale-95';
+    if (hoverType === 'lift') hoverAnimClass = 'hover:-translate-y-1.5 hover:shadow-xl hover:scale-[1.03] active:scale-95';
+    if (hoverType === 'glow') hoverAnimClass = 'hover:shadow-[0_0_15px_currentColor] hover:scale-[1.02] active:scale-95';
     
     const fontClass = font === 'serif' ? 'font-serif' : (font === 'mono' ? 'font-mono' : 'font-sans font-bold');
     
-    const baseClass = `px-8 py-3 text-[11px] uppercase tracking-widest transition-all duration-300 transform cursor-pointer flex items-center justify-center text-center w-full md:w-auto ${radius} ${hoverAnimClass} ${fontClass}`;
+    // Made base button classes smaller on mobile to fit grids
+    const baseClass = `px-3 py-2 md:px-8 md:py-3 text-[8px] md:text-[11px] uppercase tracking-widest transition-all duration-300 transform cursor-pointer flex items-center justify-center text-center w-full md:w-auto ${radius} ${hoverAnimClass} ${fontClass}`;
     
     let appliedStyle = style;
     if (appliedStyle === 'solid') {
@@ -315,9 +322,9 @@ function CmsSection({ section, setPage, isH1 }) {
 
   const getSectionStyleClass = () => {
     switch(section.section_style) {
-      case 'bubbled': return 'm-4 md:m-8 rounded-[2rem] shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-[#eebf1c]/20 overflow-hidden';
+      case 'bubbled': return 'm-2 md:m-8 rounded-[2rem] shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-[#eebf1c]/20 overflow-hidden';
       case 'elevated': return 'shadow-2xl z-10 relative border-y-4 border-[#04351e]';
-      case 'glass': return 'm-4 md:m-8 rounded-3xl bg-white/40 backdrop-blur-md border border-white/60 shadow-xl overflow-hidden';
+      case 'glass': return 'm-2 md:m-8 rounded-3xl bg-white/40 backdrop-blur-md border border-white/60 shadow-xl overflow-hidden';
       case 'flat': default: return '';
     }
   };
@@ -390,7 +397,7 @@ function CmsSection({ section, setPage, isH1 }) {
     const hasBackplate = bgClass !== 'bg-transparent';
     
     return (
-      <div className={`w-full max-w-[280px] md:max-w-sm lg:max-w-md h-auto relative z-20 rounded-xl ${bgClass} ${hasBackplate ? 'p-3 md:p-6 shadow-2xl border border-[#eebf1c]/20' : ''} ${section.inline_image_position === 'center' ? 'mx-auto block mt-8' : 'mx-auto'}`}>
+      <div className={`w-full max-w-[280px] md:max-w-sm lg:max-w-md h-auto relative z-20 rounded-xl ${bgClass} ${hasBackplate ? 'p-3 md:p-6 shadow-2xl border border-[#eebf1c]/20' : ''} mx-auto`}>
         <img src={section.inline_image_url} alt={section.title} className={`w-full h-auto object-cover ${hasBackplate ? 'rounded shadow-md' : 'rounded-lg'}`} />
       </div>
     );
@@ -406,24 +413,25 @@ function CmsSection({ section, setPage, isH1 }) {
       const hasInlineImage = !!section.inline_image_url;
       const forceCenter = !hasInlineImage || section.inline_image_position === 'center';
 
+      // Replaced md:flex-row with strict flex-row to prevent mobile stacking
       return (
         <div className={containerClass} style={{ ...borderStyles, ...containerStyle }}>
           {renderBackgroundLayer()}
-          <div className="relative z-20 p-10 md:p-24 min-h-[600px] flex flex-col justify-center items-center">
+          <div className="relative z-20 p-6 md:p-24 min-h-[400px] md:min-h-[600px] flex flex-col justify-center items-center">
             
-            <div className={`flex flex-col items-center gap-10 w-full max-w-6xl mx-auto ${forceCenter ? '' : (section.inline_image_position === 'left' ? 'md:flex-row-reverse' : 'md:flex-row')}`}>
+            <div className={`flex items-center gap-6 md:gap-10 w-full max-w-6xl mx-auto ${forceCenter ? 'flex-col' : (section.inline_image_position === 'left' ? 'flex-row-reverse' : 'flex-row')}`}>
               
-              <div className={`flex-1 flex flex-col ${forceCenter ? 'items-center text-center' : 'items-center md:items-start text-center md:text-left'}`}>
-                {section.tagline && <p className={`text-xs md:text-sm uppercase tracking-[0.5em] font-black drop-shadow-md mb-4 ${plainTextStyles}`}>{section.tagline}</p>}
-                <TitleTag className={`text-5xl md:text-7xl lg:text-8xl tracking-tighter drop-shadow-2xl mb-6 ${titleStyles}`}>{section.title}</TitleTag>
+              <div className={`flex-1 flex flex-col ${forceCenter ? 'items-center text-center' : 'items-start text-left'}`}>
+                {section.tagline && <p className={`text-[9px] md:text-sm uppercase tracking-[0.5em] font-black drop-shadow-md mb-2 md:mb-4 ${plainTextStyles}`}>{section.tagline}</p>}
+                <TitleTag className={`text-3xl sm:text-5xl md:text-7xl lg:text-8xl tracking-tighter drop-shadow-2xl mb-4 md:mb-6 ${titleStyles}`}>{section.title}</TitleTag>
                 
                 {forceCenter && hasInlineImage && (
-                   <div className="w-32 h-[2px] bg-gradient-to-r from-transparent via-[#eebf1c] to-transparent mx-auto opacity-70 my-6" aria-hidden="true"></div>
+                   <div className="w-20 md:w-32 h-[2px] bg-gradient-to-r from-transparent via-[#eebf1c] to-transparent mx-auto opacity-70 my-4 md:my-6" aria-hidden="true"></div>
                 )}
                 
-                {section.description && <p className={`text-sm md:text-lg font-sans max-w-2xl drop-shadow-md leading-relaxed mb-10 ${plainTextStyles}`}>{section.description}</p>}
+                {section.description && <p className={`text-[11px] md:text-lg font-sans max-w-2xl drop-shadow-md leading-relaxed mb-6 md:mb-10 ${plainTextStyles}`}>{section.description}</p>}
                 
-                <div className={`flex flex-wrap gap-4 w-full ${forceCenter ? 'justify-center' : 'justify-center md:justify-start'}`}>
+                <div className={`flex flex-wrap gap-2 md:gap-4 w-full ${forceCenter ? 'justify-center' : 'justify-start'}`}>
                   {section.btn1_enabled && <div className="w-full sm:w-auto"><button onClick={() => handleButtonClick(section.btn1_link)} className={getButtonClasses(1)}>{section.btn1_text}</button></div>}
                   {section.btn2_enabled && <div className="w-full sm:w-auto"><button onClick={() => handleButtonClick(section.btn2_link)} className={getButtonClasses(2)}>{section.btn2_text}</button></div>}
                   {section.btn3_enabled && <div className="w-full sm:w-auto"><button onClick={() => handleButtonClick(section.btn3_link)} className={getButtonClasses(3)}>{section.btn3_text}</button></div>}
@@ -431,14 +439,14 @@ function CmsSection({ section, setPage, isH1 }) {
               </div>
               
               {!forceCenter && (
-                <div className="flex-shrink-0 w-full md:w-1/2 flex justify-center">
+                <div className="flex-shrink-0 w-1/3 md:w-1/2 flex justify-center">
                   {renderInlineImage()}
                 </div>
               )}
             </div>
 
             {hasInlineImage && forceCenter && (
-              <div className="w-full flex justify-center mt-12">
+              <div className="w-full flex justify-center mt-8 md:mt-12">
                 {renderInlineImage()}
               </div>
             )}
@@ -449,27 +457,28 @@ function CmsSection({ section, setPage, isH1 }) {
     }
 
     case 'text_with_image':
+      // Enforce strict 2-column grid layout everywhere
       return (
         <div className={containerClass} style={{ ...borderStyles, ...containerStyle }}>
           {renderBackgroundLayer()}
-          <div className="relative z-20 max-w-7xl mx-auto px-6 py-16">
-            <div className={`grid grid-cols-1 md:grid-cols-2 gap-12 items-center p-8 md:p-12 rounded-2xl ${useOverlay && !noBackground ? 'bg-black/30 backdrop-blur-md border border-white/5 shadow-2xl' : ''}`}>
-              <div className={`space-y-6 ${section.inline_image_position === 'left' ? 'md:order-2' : ''}`}>
-                {section.tagline && <span className={`text-xs font-black uppercase tracking-[0.3em] block ${plainTextStyles}`}>{section.tagline}</span>}
-                <TitleTag className={`text-3xl md:text-5xl leading-tight ${titleStyles}`}>{section.title}</TitleTag>
-                <p className={`text-sm opacity-90 leading-relaxed font-sans ${plainTextStyles}`}>{section.description}</p>
-                <div className="flex flex-wrap gap-4 pt-4 w-full">
+          <div className="relative z-20 max-w-7xl mx-auto px-4 md:px-6 py-10 md:py-16">
+            <div className={`grid grid-cols-2 gap-4 md:gap-12 items-center p-4 md:p-12 rounded-2xl ${useOverlay && !noBackground ? 'bg-black/30 backdrop-blur-md border border-white/5 shadow-2xl' : ''}`}>
+              <div className={`space-y-3 md:space-y-6 ${section.inline_image_position === 'left' ? 'order-2' : 'order-1'}`}>
+                {section.tagline && <span className={`text-[8px] md:text-xs font-black uppercase tracking-[0.3em] block ${plainTextStyles}`}>{section.tagline}</span>}
+                <TitleTag className={`text-xl md:text-5xl leading-tight ${titleStyles}`}>{section.title}</TitleTag>
+                <p className={`text-[10px] md:text-sm opacity-90 leading-relaxed font-sans ${plainTextStyles}`}>{section.description}</p>
+                <div className="flex flex-wrap gap-2 md:gap-4 pt-2 md:pt-4 w-full">
                   {section.btn1_enabled && <div className="w-full md:w-auto"><button onClick={() => handleButtonClick(section.btn1_link)} className={getButtonClasses(1)}>{section.btn1_text}</button></div>}
                   {section.btn2_enabled && <div className="w-full md:w-auto"><button onClick={() => handleButtonClick(section.btn2_link)} className={getButtonClasses(2)}>{section.btn2_text}</button></div>}
                   {section.btn3_enabled && <div className="w-full md:w-auto"><button onClick={() => handleButtonClick(section.btn3_link)} className={getButtonClasses(3)}>{section.btn3_text}</button></div>}
                 </div>
               </div>
               
-              <div className={`aspect-[4/3] relative overflow-hidden rounded-xl shadow-xl ${getInlineBgClass()} flex items-center justify-center border border-[#eebf1c]/10 ${section.inline_image_position === 'left' ? 'md:order-1' : ''}`}>
+              <div className={`aspect-[4/3] relative overflow-hidden rounded-xl shadow-xl ${getInlineBgClass()} flex items-center justify-center border border-[#eebf1c]/10 ${section.inline_image_position === 'left' ? 'order-1' : 'order-2'}`}>
                 {section.inline_image_url ? (
                   <img src={section.inline_image_url} alt={`Feature associated with ${section.title}`} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-500 font-mono text-xs border-2 border-dashed border-gray-300 rounded m-4">No Feature Image Uploaded</div>
+                  <div className="w-full h-full flex items-center justify-center text-gray-500 font-mono text-[8px] md:text-xs border-2 border-dashed border-gray-300 rounded m-2 md:m-4 text-center">No Image Uploaded</div>
                 )}
               </div>
             </div>
@@ -478,16 +487,17 @@ function CmsSection({ section, setPage, isH1 }) {
       );
 
     case 'feature_grid':
+      // Enforce strict 3-column grid everywhere
       return (
         <div className={containerClass} style={{ ...borderStyles, ...containerStyle }}>
           {renderBackgroundLayer()}
-          <div className="relative z-20 max-w-7xl mx-auto px-6 py-16">
-            <header className={`text-center space-y-4 mb-16 p-8 rounded-2xl max-w-3xl mx-auto ${useOverlay && !noBackground ? 'bg-black/40 backdrop-blur-md border border-white/5 shadow-xl' : ''}`}>
-              {section.tagline && <span className={`text-xs uppercase tracking-[0.3em] font-black block ${plainTextStyles}`}>{section.tagline}</span>}
-              <TitleTag className={`text-4xl md:text-5xl ${titleStyles}`}>{section.title}</TitleTag>
+          <div className="relative z-20 max-w-7xl mx-auto px-4 md:px-6 py-10 md:py-16">
+            <header className={`text-center space-y-2 md:space-y-4 mb-8 md:mb-16 p-4 md:p-8 rounded-2xl max-w-3xl mx-auto ${useOverlay && !noBackground ? 'bg-black/40 backdrop-blur-md border border-white/5 shadow-xl' : ''}`}>
+              {section.tagline && <span className={`text-[8px] md:text-xs uppercase tracking-[0.3em] font-black block ${plainTextStyles}`}>{section.tagline}</span>}
+              <TitleTag className={`text-2xl md:text-5xl ${titleStyles}`}>{section.title}</TitleTag>
             </header>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-3 gap-2 md:gap-8">
               <article className={getOuterCardClass(section.feature1_bg)}>
                 {section.feature1_bg && (
                    <div className="absolute inset-0 z-0 bg-black">
@@ -495,11 +505,11 @@ function CmsSection({ section, setPage, isH1 }) {
                      <div className="absolute inset-0 bg-black/40"></div>
                    </div>
                 )}
-                <div className="relative z-10 flex flex-col items-center justify-start h-full w-full p-6 md:p-8 text-center">
-                  {section.feature1_title && <h4 className={`text-xl font-bold uppercase tracking-wider mb-4 ${plainTextStyles} ${getFontClass(section.font_family)}`}>{section.feature1_title}</h4>}
-                  {section.feature1_text && <p className={`text-sm opacity-80 font-sans leading-relaxed ${plainTextStyles}`}>{section.feature1_text}</p>}
+                <div className="relative z-10 flex flex-col items-center justify-start h-full w-full p-3 md:p-8 text-center">
+                  {section.feature1_title && <h4 className={`text-[10px] md:text-xl font-bold uppercase tracking-wider mb-2 md:mb-4 ${plainTextStyles} ${getFontClass(section.font_family)}`}>{section.feature1_title}</h4>}
+                  {section.feature1_text && <p className={`text-[8px] md:text-sm opacity-80 font-sans leading-relaxed ${plainTextStyles}`}>{section.feature1_text}</p>}
                   {section.btn1_enabled && (
-                    <div className="mt-auto pt-8 w-full flex justify-center">
+                    <div className="mt-auto pt-4 md:pt-8 w-full flex justify-center">
                        <button onClick={() => handleButtonClick(section.btn1_link)} className={getButtonClasses(1)}>{section.btn1_text}</button>
                     </div>
                   )}
@@ -513,11 +523,11 @@ function CmsSection({ section, setPage, isH1 }) {
                      <div className="absolute inset-0 bg-black/40"></div>
                    </div>
                 )}
-                <div className="relative z-10 flex flex-col items-center justify-start h-full w-full p-6 md:p-8 text-center">
-                  <h4 className={`text-xl font-bold uppercase tracking-wider mb-4 ${plainTextStyles} ${getFontClass(section.font_family)}`}>{section.feature2_title || 'Premium Service'}</h4>
-                  {section.feature2_text && <p className={`text-sm opacity-80 font-sans leading-relaxed ${plainTextStyles}`}>{section.feature2_text}</p>}
+                <div className="relative z-10 flex flex-col items-center justify-start h-full w-full p-3 md:p-8 text-center">
+                  <h4 className={`text-[10px] md:text-xl font-bold uppercase tracking-wider mb-2 md:mb-4 ${plainTextStyles} ${getFontClass(section.font_family)}`}>{section.feature2_title || 'Premium Service'}</h4>
+                  {section.feature2_text && <p className={`text-[8px] md:text-sm opacity-80 font-sans leading-relaxed ${plainTextStyles}`}>{section.feature2_text}</p>}
                   {section.btn2_enabled && (
-                    <div className="mt-auto pt-8 w-full flex justify-center">
+                    <div className="mt-auto pt-4 md:pt-8 w-full flex justify-center">
                        <button onClick={() => handleButtonClick(section.btn2_link)} className={getButtonClasses(2)}>{section.btn2_text}</button>
                     </div>
                   )}
@@ -531,11 +541,11 @@ function CmsSection({ section, setPage, isH1 }) {
                      <div className="absolute inset-0 bg-black/40"></div>
                    </div>
                 )}
-                <div className="relative z-10 flex flex-col items-center justify-start h-full w-full p-6 md:p-8 text-center">
-                  {section.feature3_title && <h4 className={`text-xl font-bold uppercase tracking-wider mb-4 ${plainTextStyles} ${getFontClass(section.font_family)}`}>{section.feature3_title}</h4>}
-                  {section.feature3_text && <p className={`text-sm opacity-80 font-sans leading-relaxed ${plainTextStyles}`}>{section.feature3_text || 'Custom project configurations processed natively.'}</p>}
+                <div className="relative z-10 flex flex-col items-center justify-start h-full w-full p-3 md:p-8 text-center">
+                  {section.feature3_title && <h4 className={`text-[10px] md:text-xl font-bold uppercase tracking-wider mb-2 md:mb-4 ${plainTextStyles} ${getFontClass(section.font_family)}`}>{section.feature3_title}</h4>}
+                  {section.feature3_text && <p className={`text-[8px] md:text-sm opacity-80 font-sans leading-relaxed ${plainTextStyles}`}>{section.feature3_text || 'Custom project configurations.'}</p>}
                   {section.btn3_enabled && (
-                    <div className="mt-auto pt-8 w-full flex justify-center">
+                    <div className="mt-auto pt-4 md:pt-8 w-full flex justify-center">
                        <button onClick={() => handleButtonClick(section.btn3_link)} className={getButtonClasses(3)}>{section.btn3_text}</button>
                     </div>
                   )}
@@ -555,18 +565,18 @@ function CmsSection({ section, setPage, isH1 }) {
       return (
         <div className={containerClass} style={{ ...borderStyles, ...containerStyle }}>
           {renderBackgroundLayer()}
-          <div className="relative z-20 p-10 md:p-20 space-y-6">
+          <div className="relative z-20 p-6 md:p-20 space-y-4 md:space-y-6">
             
             <div className="text-center">
-              {section.tagline && <span className={`text-[10px] uppercase tracking-[0.4em] font-black block mb-3 drop-shadow-md ${plainTextStyles}`}>{section.tagline}</span>}
-              <TitleTag className={`text-3xl md:text-4xl ${titleStyles}`}>{section.title}</TitleTag>
+              {section.tagline && <span className={`text-[8px] md:text-[10px] uppercase tracking-[0.4em] font-black block mb-2 md:mb-3 drop-shadow-md ${plainTextStyles}`}>{section.tagline}</span>}
+              <TitleTag className={`text-2xl md:text-4xl ${titleStyles}`}>{section.title}</TitleTag>
             </div>
 
-            <div className={`flex flex-col items-center justify-center gap-10 p-8 rounded-xl max-w-5xl mx-auto ${useOverlay && !noBackground ? 'bg-black/40 backdrop-blur-md shadow-lg border border-white/5' : ''} ${forceCenter ? '' : (section.inline_image_position === 'left' ? 'md:flex-row-reverse' : 'md:flex-row')}`}>
-              <div className={`flex-1 ${forceCenter ? 'text-center' : 'text-center md:text-left'}`}>
-                <p className={`text-sm md:text-base opacity-90 leading-relaxed ${plainTextStyles}`}>{section.description}</p>
+            <div className={`flex items-center justify-center gap-4 md:gap-10 p-4 md:p-8 rounded-xl max-w-5xl mx-auto ${useOverlay && !noBackground ? 'bg-black/40 backdrop-blur-md shadow-lg border border-white/5' : ''} ${forceCenter ? 'flex-col' : (section.inline_image_position === 'left' ? 'flex-row-reverse' : 'flex-row')}`}>
+              <div className={`flex-1 ${forceCenter ? 'text-center' : 'text-left'}`}>
+                <p className={`text-[10px] md:text-base opacity-90 leading-relaxed ${plainTextStyles}`}>{section.description}</p>
                 
-                <div className={`flex flex-wrap gap-4 pt-8 w-full ${forceCenter ? 'justify-center' : 'justify-center md:justify-start'}`}>
+                <div className={`flex flex-wrap gap-2 md:gap-4 pt-4 md:pt-8 w-full ${forceCenter ? 'justify-center' : 'justify-start'}`}>
                   {section.btn1_enabled && <div className="w-full sm:w-auto"><button onClick={() => handleButtonClick(section.btn1_link)} className={getButtonClasses(1)}>{section.btn1_text}</button></div>}
                   {section.btn2_enabled && <div className="w-full sm:w-auto"><button onClick={() => handleButtonClick(section.btn2_link)} className={getButtonClasses(2)}>{section.btn2_text}</button></div>}
                   {section.btn3_enabled && <div className="w-full sm:w-auto"><button onClick={() => handleButtonClick(section.btn3_link)} className={getButtonClasses(3)}>{section.btn3_text}</button></div>}
@@ -574,14 +584,14 @@ function CmsSection({ section, setPage, isH1 }) {
               </div>
               
               {!forceCenter && (
-                <div className="flex-shrink-0 w-full md:w-auto flex justify-center">
+                <div className="flex-shrink-0 w-1/3 md:w-auto flex justify-center">
                   {renderInlineImage()}
                 </div>
               )}
             </div>
 
             {hasInlineImage && forceCenter && (
-              <div className="flex justify-center w-full mt-8">
+              <div className="flex justify-center w-full mt-4 md:mt-8">
                 {renderInlineImage()}
               </div>
             )}
@@ -591,4 +601,5 @@ function CmsSection({ section, setPage, isH1 }) {
       );
     }
   }
+}
 }
