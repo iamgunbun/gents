@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-// Reusing the same thumbnail card from HomeView for the related items section
+// Reusing the same thumbnail card from HomeView for the related items section, now with Gallery hover effects
 function HomeThumbnailCard({ item, onSelect, globalBtnClass }) {
   const hasOptions = item.dropdown_label || item.price_max;
 
@@ -9,12 +9,21 @@ function HomeThumbnailCard({ item, onSelect, globalBtnClass }) {
       onClick={() => onSelect(item)}
       className="w-[280px] md:w-[320px] flex-shrink-0 bg-gray-50 rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col cursor-pointer overflow-hidden group whitespace-normal"
     >
+      {/* THE FIX: Added the group-hover overlay and magnifying glass icon to match the Gallery */}
       <div className="bg-white h-48 p-4 flex items-center justify-center border-b border-gray-100 overflow-hidden relative">
         {item.image_url ? (
-          <img src={item.image_url} alt={`Preview of ${item.title}`} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
+          <>
+            <img src={item.image_url} alt={`Preview of ${item.title}`} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10 pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-10 h-10 text-white opacity-80">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+              </svg>
+            </div>
+          </>
         ) : (
           <div className="text-gray-300 font-mono text-xs">No Image</div>
         )}
+        <span className="absolute top-2 right-2 bg-[#eebf1c] text-[#04351e] text-[9px] font-mono px-2 py-1 rounded shadow font-black tracking-widest uppercase z-20">NEW</span>
       </div>
       
       <div className="p-5 flex flex-col flex-grow text-left">
@@ -157,10 +166,12 @@ export default function ProductDetailView({ product, inventory, onSelectProduct,
           >
             
             {/* Magnifying Glass Hover Indicator */}
-            <div className="absolute top-4 left-4 bg-black/40 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
-              </svg>
+            <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none flex items-center justify-center">
+              <div className="bg-black/40 text-white p-3 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+                </svg>
+              </div>
             </div>
 
             {/* Sliding Track */}
@@ -182,17 +193,17 @@ export default function ProductDetailView({ product, inventory, onSelectProduct,
             {/* Embedded Navigation Arrows */}
             {allImages.length > 1 && (
               <>
-                <button onClick={(e) => { e.stopPropagation(); prevImage(); }} className="absolute left-4 bg-black/50 hover:bg-[#eebf1c] text-white hover:text-[#04351e] w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md backdrop-blur-sm z-10 cursor-pointer">
+                <button onClick={(e) => { e.stopPropagation(); prevImage(); }} className="absolute left-4 bg-black/50 hover:bg-[#eebf1c] text-white hover:text-[#04351e] w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md backdrop-blur-sm z-30 cursor-pointer">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
                 </button>
-                <button onClick={(e) => { e.stopPropagation(); nextImage(); }} className="absolute right-4 bg-black/50 hover:bg-[#eebf1c] text-white hover:text-[#04351e] w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md backdrop-blur-sm z-10 cursor-pointer">
+                <button onClick={(e) => { e.stopPropagation(); nextImage(); }} className="absolute right-4 bg-black/50 hover:bg-[#eebf1c] text-white hover:text-[#04351e] w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md backdrop-blur-sm z-30 cursor-pointer">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
                 </button>
               </>
             )}
             
             {product.is_limited_edition && (
-              <span className="absolute top-4 right-4 bg-red-600 text-white text-[10px] font-black tracking-widest uppercase px-3 py-1.5 rounded shadow-lg animate-pulse z-20">Limited Run</span>
+              <span className="absolute top-4 right-4 bg-red-600 text-white text-[10px] font-black tracking-widest uppercase px-3 py-1.5 rounded shadow-lg animate-pulse z-30">Limited Run</span>
             )}
           </div>
 
