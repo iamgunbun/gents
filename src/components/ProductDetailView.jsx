@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
+// Reusing the same thumbnail card from HomeView for the related items section
 function HomeThumbnailCard({ item, onSelect, globalBtnClass }) {
   const hasOptions = item.dropdown_label || item.price_max;
 
@@ -38,13 +39,17 @@ function HomeThumbnailCard({ item, onSelect, globalBtnClass }) {
 
 export default function ProductDetailView({ product, inventory, onSelectProduct, globalBtnClass, onAddToCart, goBack }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  
   const [quantity, setQuantity] = useState(1);
   const [selectedOption, setSelectedOption] = useState('Default');
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [activeTab, setActiveTab] = useState('description');
 
+  // Reset state when navigating to a new product
   useEffect(() => {
     setCurrentImageIndex(0);
+    setIsLightboxOpen(false);
     setQuantity(1);
     setSelectedOption('Default');
     setSpecialInstructions('');
@@ -55,6 +60,13 @@ export default function ProductDetailView({ product, inventory, onSelectProduct,
         if (options.length > 0) setSelectedOption(options[0]);
     }
   }, [product]);
+
+  // Lock body scroll when lightbox is open
+  useEffect(() => {
+    if (isLightboxOpen) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = 'auto';
+    return () => { document.body.style.overflow = 'auto'; };
+  }, [isLightboxOpen]);
 
   if (!product) return null;
 
@@ -77,6 +89,58 @@ export default function ProductDetailView({ product, inventory, onSelectProduct,
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-fade-in text-left">
+      
+      {/* --- FULLSCREEN LIGHTBOX --- */}
+      {isLightboxOpen && (
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-sm animate-fade-in"
+          onClick={() => setIsLightboxOpen(false)}
+        >
+          {/* Close Button */}
+          <button 
+            className="absolute top-6 right-6 text-white hover:text-[#eebf1c] z-50 transition-colors cursor-pointer"
+            onClick={() => setIsLightboxOpen(false)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-10 h-10"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+
+          {/* Left Navigation */}
+          {allImages.length > 1 && (
+            <button 
+              onClick={(e) => { e.stopPropagation(); prevImage(); }} 
+              className="absolute left-4 md:left-10 text-white hover:text-[#eebf1c] z-50 transition-colors p-2 cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-10 h-10 md:w-16 md:h-16"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+            </button>
+          )}
+
+          {/* Main Fullscreen Image */}
+          <div className="w-full h-full max-w-7xl mx-auto p-4 md:p-12 flex items-center justify-center">
+            <img 
+              src={allImages[currentImageIndex]} 
+              alt={product.title} 
+              className="max-w-full max-h-full object-contain drop-shadow-2xl" 
+              onClick={(e) => e.stopPropagation()} 
+            />
+          </div>
+
+          {/* Right Navigation */}
+          {allImages.length > 1 && (
+            <button 
+              onClick={(e) => { e.stopPropagation(); nextImage(); }} 
+              className="absolute right-4 md:right-10 text-white hover:text-[#eebf1c] z-50 transition-colors p-2 cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-10 h-10 md:w-16 md:h-16"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+            </button>
+          )}
+          
+          {/* Image Counter */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white font-mono text-xs tracking-widest bg-black/50 px-4 py-2 rounded-full">
+            {currentImageIndex + 1} / {allImages.length}
+          </div>
+        </div>
+      )}
+
       <button onClick={goBack} className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#eebf1c] transition-colors mb-8 flex items-center gap-2">
         &larr; Back to {product.category || 'Store'}
       </button>
@@ -86,11 +150,22 @@ export default function ProductDetailView({ product, inventory, onSelectProduct,
         {/* LEFT: Image Gallery */}
         <div className="space-y-6 lg:sticky lg:top-24">
           
-          {/* THE FIX: aspect-square locks the height, and the inner div creates the sliding track for the images */}
-          <div className="relative w-full aspect-square bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm flex items-center">
+          {/* Main Image Viewport (Click to enlarge) */}
+          <div 
+            className="relative w-full aspect-square bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm flex items-center cursor-zoom-in group"
+            onClick={() => setIsLightboxOpen(true)}
+          >
             
+            {/* Magnifying Glass Hover Indicator */}
+            <div className="absolute top-4 left-4 bg-black/40 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+              </svg>
+            </div>
+
+            {/* Sliding Track */}
             <div 
-              className="flex w-full h-full transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]"
+              className="flex w-full h-full transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] z-0"
               style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
             >
               {allImages.map((img, idx) => (
@@ -104,30 +179,31 @@ export default function ProductDetailView({ product, inventory, onSelectProduct,
               ))}
             </div>
             
+            {/* Embedded Navigation Arrows */}
             {allImages.length > 1 && (
               <>
-                <button onClick={prevImage} className="absolute left-4 bg-black/50 hover:bg-[#eebf1c] text-white hover:text-[#04351e] w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md backdrop-blur-sm z-10">
+                <button onClick={(e) => { e.stopPropagation(); prevImage(); }} className="absolute left-4 bg-black/50 hover:bg-[#eebf1c] text-white hover:text-[#04351e] w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md backdrop-blur-sm z-10 cursor-pointer">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
                 </button>
-                <button onClick={nextImage} className="absolute right-4 bg-black/50 hover:bg-[#eebf1c] text-white hover:text-[#04351e] w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md backdrop-blur-sm z-10">
+                <button onClick={(e) => { e.stopPropagation(); nextImage(); }} className="absolute right-4 bg-black/50 hover:bg-[#eebf1c] text-white hover:text-[#04351e] w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md backdrop-blur-sm z-10 cursor-pointer">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
                 </button>
               </>
             )}
             
             {product.is_limited_edition && (
-              <span className="absolute top-4 right-4 bg-red-600 text-white text-[10px] font-black tracking-widest uppercase px-3 py-1.5 rounded shadow-lg animate-pulse z-10">Limited Run</span>
+              <span className="absolute top-4 right-4 bg-red-600 text-white text-[10px] font-black tracking-widest uppercase px-3 py-1.5 rounded shadow-lg animate-pulse z-20">Limited Run</span>
             )}
           </div>
 
-          {/* Thumbnails */}
+          {/* Bottom Nav Thumbnails */}
           {allImages.length > 1 && (
             <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
               {allImages.map((img, idx) => (
                 <button 
                   key={idx} 
                   onClick={() => setCurrentImageIndex(idx)}
-                  className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${currentImageIndex === idx ? 'border-[#eebf1c] scale-105 shadow-md' : 'border-gray-200 hover:border-gray-300 opacity-70 hover:opacity-100'}`}
+                  className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${currentImageIndex === idx ? 'border-[#eebf1c] scale-105 shadow-md' : 'border-gray-200 hover:border-gray-300 opacity-70 hover:opacity-100'}`}
                 >
                   <img src={img} alt="" className="w-full h-full object-cover bg-white" />
                 </button>
@@ -204,9 +280,9 @@ export default function ProductDetailView({ product, inventory, onSelectProduct,
             <div>
               <label className="block text-xs font-bold text-[#04351e] uppercase tracking-wider mb-2">Quantity</label>
               <div className="flex items-center w-32 bg-gray-50 border border-gray-300 rounded-lg overflow-hidden shadow-sm">
-                <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-200 hover:text-black transition-colors font-bold">&minus;</button>
+                <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-200 hover:text-black transition-colors font-bold cursor-pointer">&minus;</button>
                 <input type="text" readOnly value={quantity} className="flex-1 w-full h-10 bg-transparent text-center text-black font-bold focus:outline-none text-sm" />
-                <button type="button" onClick={() => setQuantity(product.quantity > quantity ? quantity + 1 : quantity)} className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-200 hover:text-black transition-colors font-bold">&#43;</button>
+                <button type="button" onClick={() => setQuantity(product.quantity > quantity ? quantity + 1 : quantity)} className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-200 hover:text-black transition-colors font-bold cursor-pointer">&#43;</button>
               </div>
             </div>
 
@@ -242,7 +318,7 @@ export default function ProductDetailView({ product, inventory, onSelectProduct,
                 <button 
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-8 py-4 text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-colors border-b-2 ${activeTab === tab ? 'border-[#eebf1c] text-[#04351e] bg-gray-50' : 'border-transparent text-gray-400 hover:text-gray-700 hover:bg-gray-50/50'}`}
+                  className={`px-8 py-4 text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-colors border-b-2 cursor-pointer ${activeTab === tab ? 'border-[#eebf1c] text-[#04351e] bg-gray-50' : 'border-transparent text-gray-400 hover:text-gray-700 hover:bg-gray-50/50'}`}
                 >
                   {tab}
                 </button>
