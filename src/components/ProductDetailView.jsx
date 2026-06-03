@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-// Reusing the same thumbnail card from HomeView for the related items section
 function HomeThumbnailCard({ item, onSelect, globalBtnClass }) {
   const hasOptions = item.dropdown_label || item.price_max;
 
@@ -44,7 +43,6 @@ export default function ProductDetailView({ product, inventory, onSelectProduct,
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [activeTab, setActiveTab] = useState('description');
 
-  // Reset state when navigating to a new product
   useEffect(() => {
     setCurrentImageIndex(0);
     setQuantity(1);
@@ -88,27 +86,37 @@ export default function ProductDetailView({ product, inventory, onSelectProduct,
         {/* LEFT: Image Gallery */}
         <div className="space-y-6 lg:sticky lg:top-24">
           
-          {/* THE FIX: Added aspect-square to lock the container height. object-contain ensures the image fits inside without stretching */}
-          <div className="relative w-full aspect-square bg-white border border-gray-200 rounded-2xl flex items-center justify-center p-4 md:p-8 shadow-sm">
-            <img 
-              src={allImages[currentImageIndex]} 
-              alt={product.title} 
-              className="w-full h-full object-contain drop-shadow-md transition-all duration-300"
-            />
+          {/* THE FIX: aspect-square locks the height, and the inner div creates the sliding track for the images */}
+          <div className="relative w-full aspect-square bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm flex items-center">
+            
+            <div 
+              className="flex w-full h-full transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]"
+              style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+            >
+              {allImages.map((img, idx) => (
+                <div key={idx} className="w-full h-full flex-shrink-0 flex items-center justify-center p-4 md:p-8">
+                  <img 
+                    src={img} 
+                    alt={`${product.title} - View ${idx + 1}`} 
+                    className="w-full h-full object-contain drop-shadow-md"
+                  />
+                </div>
+              ))}
+            </div>
             
             {allImages.length > 1 && (
               <>
-                <button onClick={prevImage} className="absolute left-4 bg-black/50 hover:bg-[#eebf1c] text-white hover:text-[#04351e] w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md backdrop-blur-sm">
+                <button onClick={prevImage} className="absolute left-4 bg-black/50 hover:bg-[#eebf1c] text-white hover:text-[#04351e] w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md backdrop-blur-sm z-10">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
                 </button>
-                <button onClick={nextImage} className="absolute right-4 bg-black/50 hover:bg-[#eebf1c] text-white hover:text-[#04351e] w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md backdrop-blur-sm">
+                <button onClick={nextImage} className="absolute right-4 bg-black/50 hover:bg-[#eebf1c] text-white hover:text-[#04351e] w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md backdrop-blur-sm z-10">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
                 </button>
               </>
             )}
             
             {product.is_limited_edition && (
-              <span className="absolute top-4 right-4 bg-red-600 text-white text-[10px] font-black tracking-widest uppercase px-3 py-1.5 rounded shadow-lg animate-pulse">Limited Run</span>
+              <span className="absolute top-4 right-4 bg-red-600 text-white text-[10px] font-black tracking-widest uppercase px-3 py-1.5 rounded shadow-lg animate-pulse z-10">Limited Run</span>
             )}
           </div>
 
