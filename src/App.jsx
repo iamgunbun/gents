@@ -51,15 +51,27 @@ export default function App() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
-    // SEO setup keeping descriptions rich for Google, but keeping the browser tabs short!
+    // SEO setup keeping descriptions rich for Google
     const baseDesc = "Premium custom firearm engraving in East Texas. We specialize in deep-relief scrolls, custom motifs, and bespoke laser stippling on rifles, handguns, and accessories.";
     
-    let pageTitle = currentPage; // This defaults tab title to exactly the page name ("Home", "Contact", "Gallery", etc.)
+    // UNIQUE TAB TITLES MAPPED TO EACH PAGE
+    const pageTitles = {
+      'Home': 'Custom Firearm Engraving | The Gentlemen Artists Armoury',
+      'Rifles': 'Custom Engraved Rifles | The Gentlemen Artists Armoury',
+      'Handguns': 'Custom Engraved Handguns | The Gentlemen Artists Armoury',
+      'Accessories': 'Engraved Accessories & Gear | The Gentlemen Artists Armoury',
+      'Gallery': 'Engraving Gallery & Past Work | The Gentlemen Artists Armoury',
+      'Contact': 'Contact & Custom Quotes | The Gentlemen Artists Armoury',
+      'Cart': 'Your Shopping Cart | The Gentlemen Artists Armoury',
+      'Admin': 'Admin Portal | The Gentlemen Artists Armoury'
+    };
+
+    let pageTitle = pageTitles[currentPage] || `${currentPage} | The Gentlemen Artists Armoury`;
     let pageDesc = baseDesc;
     let schemaMarkup = null;
 
     if (currentPage === 'ProductDetail' && selectedProduct) {
-      pageTitle = selectedProduct.title; // Uses just the product title when viewing an item
+      pageTitle = `${selectedProduct.title} | The Gentlemen Artists Armoury`; 
       pageDesc = selectedProduct.description ? selectedProduct.description.substring(0, 155) + '...' : baseDesc;
       
       schemaMarkup = {
@@ -83,7 +95,6 @@ export default function App() {
         }
       };
     } else if (['Rifles', 'Handguns', 'Accessories', 'Gallery'].includes(currentPage)) {
-      // Descriptions remain rich for SEO even with short browser tabs
       pageDesc = `Browse our exclusive collection of custom engraved ${currentPage.toLowerCase()}. Designed and localized in East Texas.`;
     } else if (currentPage === 'Home') {
       schemaMarkup = {
@@ -135,7 +146,6 @@ export default function App() {
     btn_color: 'brand-gold', btn_style: 'solid', btn_radius: 'rounded-md', btn_hover_anim: 'lift', btn_font: 'sans'
   };
 
-  // EXTENDED GLOBAL BUTTON COLOR HANDLING
   const getGlobalBtnClass = () => {
     const color = globalConfig.btn_color || 'brand-gold';
     const style = globalConfig.btn_style || 'solid';
