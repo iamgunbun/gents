@@ -18,12 +18,12 @@ export default function Header({ currentPage, setCurrentPage, inventory = [], ca
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Prevent background scrolling when mobile menu is open
+  // Prevent background scrolling when mobile menu is open, blank string prevents double scrollbar
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = ''; 
     }
   }, [isMobileMenuOpen]);
 
