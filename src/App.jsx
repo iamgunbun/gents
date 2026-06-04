@@ -51,15 +51,15 @@ export default function App() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
-    const baseTitle = "The Gentlemen Artists Armoury | Custom Engraved Firearms in East Texas";
+    // SEO setup keeping descriptions rich for Google, but keeping the browser tabs short!
     const baseDesc = "Premium custom firearm engraving in East Texas. We specialize in deep-relief scrolls, custom motifs, and bespoke laser stippling on rifles, handguns, and accessories.";
     
-    let pageTitle = baseTitle;
+    let pageTitle = currentPage; // This defaults tab title to exactly the page name ("Home", "Contact", "Gallery", etc.)
     let pageDesc = baseDesc;
     let schemaMarkup = null;
 
     if (currentPage === 'ProductDetail' && selectedProduct) {
-      pageTitle = `${selectedProduct.title} | Custom ${selectedProduct.category} | Armoury`;
+      pageTitle = selectedProduct.title; // Uses just the product title when viewing an item
       pageDesc = selectedProduct.description ? selectedProduct.description.substring(0, 155) + '...' : baseDesc;
       
       schemaMarkup = {
@@ -83,10 +83,8 @@ export default function App() {
         }
       };
     } else if (['Rifles', 'Handguns', 'Accessories', 'Gallery'].includes(currentPage)) {
-      pageTitle = `Custom Engraved ${currentPage} | The Gentlemen Artists Armoury`;
+      // Descriptions remain rich for SEO even with short browser tabs
       pageDesc = `Browse our exclusive collection of custom engraved ${currentPage.toLowerCase()}. Designed and localized in East Texas.`;
-    } else if (currentPage === 'Contact') {
-      pageTitle = "Contact Us | Request a Quote | The Gentlemen Artists Armoury";
     } else if (currentPage === 'Home') {
       schemaMarkup = {
         "@context": "https://schema.org",
