@@ -16,8 +16,8 @@ export default function AgeVerification() {
   const handleConfirm = () => {
     localStorage.setItem('ageVerified', 'true');
     setIsOpen(false);
-    // Restore scrolling
-    document.body.style.overflow = 'auto';
+    // Restore scrolling, blank string prevents double scrollbar
+    document.body.style.overflow = ''; 
   };
 
   const handleDeny = () => {
