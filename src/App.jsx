@@ -54,24 +54,25 @@ export default function App() {
     // SEO setup keeping descriptions rich for Google
     const baseDesc = "Premium custom firearm engraving in East Texas. We specialize in deep-relief scrolls, custom motifs, and bespoke laser stippling on rifles, handguns, and accessories.";
     
-    // UNIQUE TAB TITLES MAPPED TO EACH PAGE
+    // COMPLETELY UNIQUE TAB TITLES
     const pageTitles = {
-      'Home': 'Custom Firearm Engraving | The Gentlemen Artists Armoury',
-      'Rifles': 'Custom Engraved Rifles | The Gentlemen Artists Armoury',
-      'Handguns': 'Custom Engraved Handguns | The Gentlemen Artists Armoury',
-      'Accessories': 'Engraved Accessories & Gear | The Gentlemen Artists Armoury',
-      'Gallery': 'Engraving Gallery & Past Work | The Gentlemen Artists Armoury',
-      'Contact': 'Contact & Custom Quotes | The Gentlemen Artists Armoury',
-      'Cart': 'Your Shopping Cart | The Gentlemen Artists Armoury',
-      'Admin': 'Admin Portal | The Gentlemen Artists Armoury'
+      'Home': 'The Gentlemen Artists Armoury',
+      'Rifles': 'Custom Rifle Engraving',
+      'Handguns': 'Bespoke Handgun Designs',
+      'Accessories': 'Engraved Accessories & Gear',
+      'Gallery': 'Armoury Gallery & Past Work',
+      'Contact': 'Request a Custom Quote',
+      'Cart': 'Secure Checkout',
+      'Admin': 'Armoury Dashboard'
     };
 
-    let pageTitle = pageTitles[currentPage] || `${currentPage} | The Gentlemen Artists Armoury`;
+    // Use the exact unique title without any repetitive branding appended
+    let pageTitle = pageTitles[currentPage] || currentPage;
     let pageDesc = baseDesc;
     let schemaMarkup = null;
 
     if (currentPage === 'ProductDetail' && selectedProduct) {
-      pageTitle = `${selectedProduct.title} | The Gentlemen Artists Armoury`; 
+      pageTitle = selectedProduct.title; // Shows ONLY the product name in the tab
       pageDesc = selectedProduct.description ? selectedProduct.description.substring(0, 155) + '...' : baseDesc;
       
       schemaMarkup = {
