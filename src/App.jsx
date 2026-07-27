@@ -12,17 +12,25 @@ import Footer from './components/Footer';
 import AgeVerification from './components/AgeVerification';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('Home');
+  // Rename the raw state setter so we can wrap it with history tracking
+  const [currentPage, _setCurrentPage] = useState('Home');
   const [inventory, setInventory] = useState([]);
   const [homeSections, setHomeSections] = useState([]);
   const [session, setSession] = useState(null);
   const [authMode, setAuthMode] = useState('login');
-  
   const [cart, setCart] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [quoteItem, setQuoteItem] = useState(null);
-  
   const [newItem, setNewItem] = useState({ title: '', description: '', price: '', category: 'Rifles', status: 'In Stock', quantity: 1 });
+
+  // Wrapper function to sync React state with browser history
+  const setCurrentPage = (page) => {
+    _setCurrentPage(page);
+    if (page !== currentPage) {
+      const urlPath = page === 'Home' ? '/' : `/${page.toLowerCase().replace(/\s+/g, '-')}`;
+      window.history.pushState({ page }, '', urlPath);
+    }
+  };
 
   async function fetchData() {
     const { data: inv } = await supabase.from('inventory').select('*');
@@ -34,7 +42,6 @@ export default function App() {
   useEffect(() => {
     fetchData();
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
-
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       if (event === 'PASSWORD_RECOVERY') {
@@ -43,36 +50,40 @@ export default function App() {
       }
     });
 
+    // Listen for the browser's back/forward buttons
+    const handlePopState = (event) => {
+      if (event.state && event.state.page) {
+        _setCurrentPage(event.state.page);
+      } else {
+        _setCurrentPage('Home');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    // Set the initial history state if it doesn't exist on first load
+    if (!window.history.state) {
+      window.history.replaceState({ page: 'Home' }, '', '/');
+    }
+
     return () => {
       authListener.subscription.unsubscribe();
+      window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
-    // SEO setup keeping descriptions rich for Google
+    const baseTitle = "The Gentlemen Artists Armoury | Custom Engraved Firearms in East Texas";
     const baseDesc = "Premium custom firearm engraving in East Texas. We specialize in deep-relief scrolls, custom motifs, and bespoke laser stippling on rifles, handguns, and accessories.";
     
-    // COMPLETELY UNIQUE TAB TITLES
-    const pageTitles = {
-      'Home': 'The Gentlemen Artists Armoury',
-      'Rifles': 'Custom Rifle Engraving',
-      'Handguns': 'Bespoke Handgun Designs',
-      'Accessories': 'Engraved Accessories & Gear',
-      'Gallery': 'Armoury Gallery & Past Work',
-      'Contact': 'Request a Custom Quote',
-      'Cart': 'Secure Checkout',
-      'Admin': 'Armoury Dashboard'
-    };
-
-    // Use the exact unique title without any repetitive branding appended
-    let pageTitle = pageTitles[currentPage] || currentPage;
+    let pageTitle = baseTitle;
     let pageDesc = baseDesc;
     let schemaMarkup = null;
 
     if (currentPage === 'ProductDetail' && selectedProduct) {
-      pageTitle = selectedProduct.title; // Shows ONLY the product name in the tab
+      pageTitle = `${selectedProduct.title} | Custom ${selectedProduct.category} | Armoury`;
       pageDesc = selectedProduct.description ? selectedProduct.description.substring(0, 155) + '...' : baseDesc;
       
       schemaMarkup = {
@@ -96,7 +107,10 @@ export default function App() {
         }
       };
     } else if (['Rifles', 'Handguns', 'Accessories', 'Gallery'].includes(currentPage)) {
+      pageTitle = `Custom Engraved ${currentPage} | The Gentlemen Artists Armoury`;
       pageDesc = `Browse our exclusive collection of custom engraved ${currentPage.toLowerCase()}. Designed and localized in East Texas.`;
+    } else if (currentPage === 'Contact') {
+      pageTitle = "Contact Us | Request a Quote | The Gentlemen Artists Armoury";
     } else if (currentPage === 'Home') {
       schemaMarkup = {
         "@context": "https://schema.org",
@@ -107,7 +121,7 @@ export default function App() {
         "email": "Thegentlemenartistsarmoury@gmail.com",
         "address": {
           "@type": "PostalAddress",
-          "addressLocality": "Tyler",
+          "addressLocality": "East Texas",
           "addressRegion": "TX",
           "addressCountry": "US"
         },
@@ -133,7 +147,6 @@ export default function App() {
       document.head.appendChild(scriptSchema);
     }
     scriptSchema.textContent = schemaMarkup ? JSON.stringify(schemaMarkup) : '';
-
   }, [currentPage, selectedProduct]);
 
   const handleDeleteItem = async (id) => {
@@ -147,6 +160,7 @@ export default function App() {
     btn_color: 'brand-gold', btn_style: 'solid', btn_radius: 'rounded-md', btn_hover_anim: 'lift', btn_font: 'sans'
   };
 
+  // EXTENDED GLOBAL BUTTON COLOR HANDLING
   const getGlobalBtnClass = () => {
     const color = globalConfig.btn_color || 'brand-gold';
     const style = globalConfig.btn_style || 'solid';
